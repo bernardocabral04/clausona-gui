@@ -1,4 +1,8 @@
+import AppKit
 import ClausonaGUI
 
-// Placeholder until Task 14 wires the AppKit lifecycle.
-print("clausona-gui placeholder")
+let app = NSApplication.shared
+app.setActivationPolicy(.accessory)
+let delegate = AppDelegate()
+app.delegate = delegate
+app.run()
