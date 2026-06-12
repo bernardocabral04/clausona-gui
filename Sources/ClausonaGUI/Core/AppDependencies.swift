@@ -4,11 +4,11 @@ import ServiceManagement
 public struct CLIActions: Sendable {
     public var use: @Sendable (String) async -> Result<Void, CLIError>
     public var repair: @Sendable (String) async -> Result<Void, CLIError>
-    public var doctor: @Sendable () async -> String?
+    public var doctor: @Sendable () async -> Result<String, CLIError>
 
     public init(use: @escaping @Sendable (String) async -> Result<Void, CLIError>,
                 repair: @escaping @Sendable (String) async -> Result<Void, CLIError>,
-                doctor: @escaping @Sendable () async -> String?) {
+                doctor: @escaping @Sendable () async -> Result<String, CLIError>) {
         self.use = use
         self.repair = repair
         self.doctor = doctor

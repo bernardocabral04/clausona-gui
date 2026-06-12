@@ -31,9 +31,17 @@ public struct ClausonaCLI: Sendable {
         await run(["repair", profile])
     }
 
-    /// Returns raw stdout regardless of exit status — the parser is tolerant.
-    public func doctor() async -> String? {
-        await Subprocess.run(binaryPath, ["doctor"])?.stdout
+    /// Success carries raw stdout (doctor exits non-zero when issues exist — that's
+    /// still a successful run). Failure = couldn't launch, or produced no report.
+    public func doctor() async -> Result<String, CLIError> {
+        guard let result = await Subprocess.run(binaryPath, ["doctor"]) else {
+            return .failure(CLIError(message: "could not launch clausona"))
+        }
+        if result.stdout.isEmpty && result.exitCode != 0 {
+            let stderr = result.stderr.trimmingCharacters(in: .whitespacesAndNewlines)
+            return .failure(CLIError(message: stderr.isEmpty ? "clausona doctor exited with status \(result.exitCode)" : stderr))
+        }
+        return .success(result.stdout)
     }
 
     private func run(_ arguments: [String]) async -> Result<Void, CLIError> {

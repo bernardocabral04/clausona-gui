@@ -13,7 +13,15 @@ public final class AppModel {
     public private(set) var lastUpdated: Date?
     public private(set) var isRefreshing = false
     public private(set) var launchAtLoginEnabled = false
+    public private(set) var doctorError: String?
     public var toast: String?
+
+    public var totalIssueCount: Int {
+        snapshots.reduce(0) { count, snapshot in
+            if case .issues(let issues) = snapshot.health { return count + issues.count }
+            return count
+        }
+    }
 
     public let cliAvailable: Bool
     public static let pollInterval: TimeInterval = 300
@@ -108,10 +116,16 @@ public final class AppModel {
     // MARK: - Health
 
     public func refreshHealth() async {
-        guard let cli = deps.cli, let output = await cli.doctor() else { return }
-        let statuses = DoctorParser.parse(output)
-        for index in snapshots.indices {
-            snapshots[index].health = statuses[snapshots[index].name] ?? .unknown
+        guard let cli = deps.cli else { return }
+        switch await cli.doctor() {
+        case .success(let output):
+            doctorError = nil
+            let statuses = DoctorParser.parse(output)
+            for index in snapshots.indices {
+                snapshots[index].health = statuses[snapshots[index].name] ?? .unknown
+            }
+        case .failure(let error):
+            doctorError = error.message   // keep last known health states
         }
     }
 

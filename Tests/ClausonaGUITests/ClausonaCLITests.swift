@@ -45,7 +45,20 @@ final class ClausonaCLITests: XCTestCase {
 
     func testDoctorReturnsStdout() async throws {
         let stub = try makeStub("echo '  personal (a@b.c)'; echo '    ✔ healthy'")
-        let output = await ClausonaCLI(binaryPath: stub).doctor()
-        XCTAssertEqual(output?.contains("✔ healthy"), true)
+        let result = await ClausonaCLI(binaryPath: stub).doctor()
+        XCTAssertEqual(try result.get().contains("✔ healthy"), true)
+    }
+
+    func testDoctorNonZeroWithIssuesStillSucceeds() async throws {
+        let stub = try makeStub("echo '  p (a@b.c)'; echo '    ✘ 1 issue'; exit 1")
+        let result = await ClausonaCLI(binaryPath: stub).doctor()
+        XCTAssertEqual(try result.get().contains("✘ 1 issue"), true)
+    }
+
+    func testDoctorFailureSurfacesStderr() async throws {
+        let stub = try makeStub("echo 'doctor exploded: cannot read profiles' >&2; exit 2")
+        let result = await ClausonaCLI(binaryPath: stub).doctor()
+        guard case .failure(let error) = result else { return XCTFail("expected failure") }
+        XCTAssertEqual(error.message, "doctor exploded: cannot read profiles")
     }
 }

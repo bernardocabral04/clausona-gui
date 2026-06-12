@@ -64,7 +64,7 @@ final class AppModelTests: XCTestCase {
 
     func testSwitchOptimisticThenRevertOnFailure() async {
         let cli = CLIActions(use: { _ in .failure(CLIError(message: "boom")) },
-                             repair: { _ in .success(()) }, doctor: { nil })
+                             repair: { _ in .success(()) }, doctor: { .failure(CLIError(message: "no doctor")) })
         let model = AppModel(deps: deps(profiles: file(), cli: cli))
         await model.refreshUsage()
         await model.switchProfile("work")
@@ -73,7 +73,7 @@ final class AppModelTests: XCTestCase {
     }
 
     func testSwitchSuccessMovesActive() async {
-        let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { nil })
+        let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { .failure(CLIError(message: "no doctor")) })
         let model = AppModel(deps: deps(profiles: file(), cli: cli))
         await model.refreshUsage()
         await model.switchProfile("work")
@@ -87,7 +87,7 @@ final class AppModelTests: XCTestCase {
           personal (a@b.c)
             ✔ healthy
         """
-        let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { doctorOutput })
+        let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { .success(doctorOutput) })
         let model = AppModel(deps: deps(profiles: file(), cli: cli))
         await model.refreshUsage()
         await model.refreshHealth()
@@ -98,7 +98,7 @@ final class AppModelTests: XCTestCase {
     func testRepairFailureSetsToast() async {
         let cli = CLIActions(use: { _ in .success(()) },
                              repair: { _ in .failure(CLIError(message: "repair broke")) },
-                             doctor: { nil })
+                             doctor: { .failure(CLIError(message: "no doctor")) })
         let model = AppModel(deps: deps(profiles: file(), cli: cli))
         await model.refreshUsage()
         await model.repair("work")
@@ -122,9 +122,42 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(model.snapshots[0].credential, .expired)
     }
 
+    func testDoctorFailureSetsErrorAndKeepsHealth() async {
+        nonisolated(unsafe) var failDoctor = false
+        let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) },
+                             doctor: { failDoctor ? .failure(CLIError(message: "boom")) : .success("  personal (a@b.c)\n    \u{2714} healthy") })
+        let model = AppModel(deps: deps(profiles: file(), cli: cli))
+        await model.refreshUsage()
+        await model.refreshHealth()
+        XCTAssertEqual(model.snapshots[0].health, .healthy)
+        XCTAssertNil(model.doctorError)
+        failDoctor = true
+        await model.refreshHealth()
+        XCTAssertEqual(model.doctorError, "boom")
+        XCTAssertEqual(model.snapshots[0].health, .healthy)   // last good health kept
+    }
+
+    func testTotalIssueCount() async {
+        let output = """
+          personal (a@b.c)
+            \u{2718} 2 issues
+            \u{251C}\u{2500} one
+            \u{2570}\u{2500} two
+          work (w@b.c)
+            \u{2718} 1 issue
+            \u{2570}\u{2500} three
+        """
+        let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) },
+                             doctor: { .success(output) })
+        let model = AppModel(deps: deps(profiles: file(), cli: cli))
+        await model.refreshUsage()
+        await model.refreshHealth()
+        XCTAssertEqual(model.totalIssueCount, 3)
+    }
+
     func testCliAvailabilityFlag() {
         XCTAssertFalse(AppModel(deps: deps()).cliAvailable)
-        let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { nil })
+        let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { .failure(CLIError(message: "no doctor")) })
         XCTAssertTrue(AppModel(deps: deps(cli: cli)).cliAvailable)
     }
 }
