@@ -106,6 +106,22 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(model.snapshots.first(where: { $0.name == "work" })?.isRepairing, false)
     }
 
+    func testCredentialStatusCaptured() async {
+        let expiry = Date(timeIntervalSince1970: 3_000_000)
+        let model = AppModel(deps: deps(profiles: file(), token: { profile in
+            profile.name == "personal" ? .ok(.init(accessToken: "t", expiresAt: expiry)) : .missing
+        }))
+        await model.refreshUsage()
+        XCTAssertEqual(model.snapshots[0].credential, .valid(until: expiry))
+        XCTAssertEqual(model.snapshots[1].credential, .missing)
+    }
+
+    func testCredentialStatusExpired() async {
+        let model = AppModel(deps: deps(profiles: file(names: ["personal"]), token: { _ in .expired }))
+        await model.refreshUsage()
+        XCTAssertEqual(model.snapshots[0].credential, .expired)
+    }
+
     func testCliAvailabilityFlag() {
         XCTAssertFalse(AppModel(deps: deps()).cliAvailable)
         let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { nil })

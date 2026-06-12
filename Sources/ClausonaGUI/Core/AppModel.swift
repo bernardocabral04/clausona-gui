@@ -54,39 +54,40 @@ public final class AppModel {
         defer { isRefreshing = false }
 
         let deps = self.deps
-        let outcomes = await withTaskGroup(of: (String, FetchOutcome).self,
-                                           returning: [String: FetchOutcome].self) { group in
+        let outcomes = await withTaskGroup(of: (String, FetchOutcome, CredentialStatus).self,
+                                           returning: [String: (FetchOutcome, CredentialStatus)].self) { group in
             for profile in file.profiles {
                 group.addTask {
                     switch await deps.token(profile) {
                     case .missing:
-                        return (profile.name, .failed("no credentials found"))
+                        return (profile.name, .failed("no credentials found"), .missing)
                     case .expired:
-                        return (profile.name, .failed("login needed — clausona login \(profile.name)"))
+                        return (profile.name, .failed("login needed — clausona login \(profile.name)"), .expired)
                     case .ok(let token):
+                        let credential = CredentialStatus.valid(until: token.expiresAt)
                         switch await deps.fetchUsage(token.accessToken) {
-                        case .success(let report): return (profile.name, .ok(report))
-                        case .failure(let error): return (profile.name, .failed(error.message))
+                        case .success(let report): return (profile.name, .ok(report), credential)
+                        case .failure(let error): return (profile.name, .failed(error.message), credential)
                         }
                     }
                 }
             }
-            var collected: [String: FetchOutcome] = [:]
-            for await (name, outcome) in group { collected[name] = outcome }
+            var collected: [String: (FetchOutcome, CredentialStatus)] = [:]
+            for await (name, outcome, credential) in group { collected[name] = (outcome, credential) }
             return collected
         }
 
         var anySuccess = false
         for index in snapshots.indices {
-            switch outcomes[snapshots[index].name] {
+            guard let (outcome, credential) = outcomes[snapshots[index].name] else { continue }
+            snapshots[index].credential = credential
+            switch outcome {
             case .ok(let report):
                 snapshots[index].usage = .ok(report)
                 anySuccess = true
             case .failed(let message):
                 snapshots[index].usage = .error(message: message,
                                                 lastGood: snapshots[index].usage.lastGoodReport)
-            case nil:
-                break
             }
         }
         if anySuccess { lastUpdated = deps.now() }
