@@ -33,6 +33,13 @@ public final class AppModel {
         self.cliAvailable = deps.cli != nil
     }
 
+    /// Set by AppDelegate; invoked from the popover footer.
+    @ObservationIgnored public var onOpenMainWindow: (@MainActor () -> Void)?
+
+    public func openMainWindow() {
+        onOpenMainWindow?()
+    }
+
     public var isStale: Bool {
         Staleness.isStale(lastSuccess: lastUpdated, now: deps.now(), pollInterval: Self.pollInterval)
     }

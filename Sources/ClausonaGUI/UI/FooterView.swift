@@ -32,6 +32,8 @@ struct FooterView: View {
                     set: { model.setLaunchAtLogin($0) }))
                     .toggleStyle(.checkbox)
                     .font(.system(size: 11))
+                Button("Open Clausona…") { model.openMainWindow() }
+                    .controlSize(.small)
                 Spacer()
                 Button("Quit") { NSApp.terminate(nil) }
                     .controlSize(.small)
