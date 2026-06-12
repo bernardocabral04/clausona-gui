@@ -9,6 +9,7 @@ public final class AppModel {
 
     public private(set) var setupState: SetupState = .loading
     public private(set) var snapshots: [ProfileSnapshot] = []
+    public private(set) var profilesFile: ProfilesFile?
     public private(set) var activeProfile: String?
     public private(set) var lastUpdated: Date?
     public private(set) var isRefreshing = false
@@ -109,6 +110,7 @@ public final class AppModel {
     }
 
     private func mergeProfiles(_ file: ProfilesFile) {
+        profilesFile = file
         activeProfile = file.activeProfile
         let existing = Dictionary(uniqueKeysWithValues: snapshots.map { ($0.name, $0) })
         snapshots = file.profiles.map { profile in
