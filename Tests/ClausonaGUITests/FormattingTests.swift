@@ -18,6 +18,19 @@ final class FormattingTests: XCTestCase {
         XCTAssertEqual(Formatting.updatedAgo(seconds: 3 * 86400), "3d ago")
     }
 
+    func testCost() {
+        XCTAssertEqual(Formatting.cost(1388.034), "$1,388.03")
+        XCTAssertEqual(Formatting.cost(0), "$0.00")
+        XCTAssertEqual(Formatting.cost(581.83), "$581.83")
+        XCTAssertEqual(Formatting.cost(4500.5), "$4,500.50")
+    }
+
+    func testTokens() {
+        XCTAssertEqual(Formatting.tokens(2_365_402), "2,365,402")
+        XCTAssertEqual(Formatting.tokens(0), "0")
+        XCTAssertEqual(Formatting.tokens(694), "694")
+    }
+
     func testSeverity() {
         XCTAssertEqual(UsageSeverity(percent: 0), .normal)
         XCTAssertEqual(UsageSeverity(percent: 69), .normal)

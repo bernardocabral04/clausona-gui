@@ -20,6 +20,31 @@ public enum Formatting {
         if hours < 24 { return "\(hours)h ago" }
         return "\(hours / 24)d ago"
     }
+
+    private nonisolated(unsafe) static let costFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.locale = Locale(identifier: "en_US")   // deterministic separators, matching the CLI
+        f.numberStyle = .decimal
+        f.minimumFractionDigits = 2
+        f.maximumFractionDigits = 2
+        return f
+    }()
+
+    private nonisolated(unsafe) static let tokensFormatter: NumberFormatter = {
+        let f = NumberFormatter()
+        f.locale = Locale(identifier: "en_US")
+        f.numberStyle = .decimal
+        f.maximumFractionDigits = 0
+        return f
+    }()
+
+    public static func cost(_ value: Double) -> String {
+        "$" + (costFormatter.string(from: value as NSNumber) ?? String(format: "%.2f", value))
+    }
+
+    public static func tokens(_ value: Int) -> String {
+        tokensFormatter.string(from: value as NSNumber) ?? String(value)
+    }
 }
 
 public enum UsageSeverity: Equatable, Sendable {
