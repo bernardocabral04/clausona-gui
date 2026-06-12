@@ -1,7 +1,7 @@
 # Clausona GUI — Phase 1: Menu bar core
 
 **Date:** 2026-06-12
-**Status:** Draft — awaiting approval
+**Status:** Approved 2026-06-13
 **Project:** `~/Projects/personal/clausona-gui` — a native macOS GUI for [clausona](https://github.com/larcane97/clausona), the third-party Claude Code profile manager.
 
 ## Overview

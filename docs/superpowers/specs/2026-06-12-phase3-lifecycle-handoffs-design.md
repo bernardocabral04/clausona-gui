@@ -1,7 +1,7 @@
 # Clausona GUI — Phase 3: Lifecycle handoffs & settings
 
 **Date:** 2026-06-12
-**Status:** Draft — awaiting approval
+**Status:** Approved 2026-06-13
 **Depends on:** [Phase 1](2026-06-12-phase1-menubar-core-design.md), [Phase 2](2026-06-12-phase2-main-window-design.md)
 
 ## Overview

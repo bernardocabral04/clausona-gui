@@ -1,7 +1,7 @@
 # Clausona GUI — Phase 2: Main window
 
 **Date:** 2026-06-12
-**Status:** Draft — awaiting approval
+**Status:** Approved 2026-06-13
 **Depends on:** [Phase 1 — menu bar core](2026-06-12-phase1-menubar-core-design.md) (reuses ProfileStore, HealthChecker, ClausonaCLI, models)
 
 ## Overview
