@@ -2,6 +2,7 @@ import SwiftUI
 
 struct FooterView: View {
     let model: AppModel
+    @State private var showingAddSheet = false
 
     var body: some View {
         VStack(alignment: .leading, spacing: 8) {
@@ -35,9 +36,29 @@ struct FooterView: View {
                 Button("Open Clausona…") { model.openMainWindow() }
                     .controlSize(.small)
                 Spacer()
+                if model.canStartFlows {
+                    Button {
+                        showingAddSheet = true
+                    } label: {
+                        Image(systemName: "plus")
+                    }
+                    .controlSize(.small)
+                    .help("Add profile (continues in your terminal)")
+                }
+                Button {
+                    model.openSettings()
+                } label: {
+                    Image(systemName: "gearshape")
+                }
+                .controlSize(.small)
+                .keyboardShortcut(",")
+                .help("Settings")
                 Button("Quit") { NSApp.terminate(nil) }
                     .controlSize(.small)
                     .keyboardShortcut("q")
+            }
+            .sheet(isPresented: $showingAddSheet) {
+                AddProfileSheet(model: model, isPresented: $showingAddSheet)
             }
 
             if !model.cliAvailable {

@@ -3,6 +3,8 @@ import SwiftUI
 struct EmptyStateView: View {
     let title: String
     let hint: String
+    var actionTitle: String? = nil
+    var action: (() -> Void)? = nil
 
     var body: some View {
         VStack(spacing: 6) {
@@ -15,6 +17,11 @@ struct EmptyStateView: View {
                 .font(.system(size: 11))
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
+            if let actionTitle, let action {
+                Button(actionTitle, action: action)
+                    .controlSize(.small)
+                    .padding(.top, 4)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 24)

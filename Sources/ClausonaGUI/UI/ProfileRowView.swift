@@ -133,6 +133,12 @@ struct ProfileRowView: View {
                 }
                 .controlSize(.small)
                 .help("Runs `clausona repair \(snapshot.name)`")
+            } else if needsLogin && model.canStartFlows {
+                Button("Login") {
+                    model.startFlow(.login(name: snapshot.name))
+                }
+                .controlSize(.small)
+                .help("Re-authenticate in your terminal")
             } else if !snapshot.isActive {
                 Button("Use") {
                     Task { await model.switchProfile(snapshot.name) }
@@ -141,5 +147,11 @@ struct ProfileRowView: View {
                 .help("Runs `clausona use \(snapshot.name)` — affects new terminals only")
             }
         }
+    }
+
+    private var needsLogin: Bool {
+        if case .expired = snapshot.credential { return true }
+        if case .missing = snapshot.credential { return true }
+        return false
     }
 }

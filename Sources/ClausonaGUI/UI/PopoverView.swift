@@ -23,7 +23,11 @@ public struct PopoverView: View {
             case .notSetUp:
                 EmptyStateView(
                     title: "clausona is not set up",
-                    hint: "Run `clausona init` in a terminal to get started.")
+                    hint: model.canStartFlows
+                        ? "Initial setup discovers your Claude accounts in a terminal."
+                        : "Run `clausona init` in a terminal to get started.",
+                    actionTitle: model.canStartFlows ? "Set up clausona…" : nil,
+                    action: model.canStartFlows ? { model.startFlow(.initialSetup) } : nil)
             case .ready:
                 VStack(spacing: 1) {
                     ForEach(model.snapshots) { snapshot in
