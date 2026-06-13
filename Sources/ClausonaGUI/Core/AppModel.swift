@@ -41,6 +41,17 @@ public final class AppModel {
         onOpenMainWindow?()
     }
 
+    // MARK: - Terminal handoffs
+
+    public var canStartFlows: Bool { deps.launchFlow != nil }
+
+    public func startFlow(_ flow: ClausonaFlow) {
+        guard let launch = deps.launchFlow else { return }
+        if let notice = launch(flow) {
+            toast = notice
+        }
+    }
+
     public var isStale: Bool {
         Staleness.isStale(lastSuccess: lastUpdated, now: deps.now(), pollInterval: Self.pollInterval)
     }

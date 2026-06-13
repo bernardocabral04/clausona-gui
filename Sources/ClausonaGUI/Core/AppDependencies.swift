@@ -20,6 +20,8 @@ public struct AppDependencies: Sendable {
     public var token: @Sendable (Profile) async -> TokenResult
     public var fetchUsage: @Sendable (String) async -> Result<UsageReport, UsageError>
     public var cli: CLIActions?                    // nil → degraded "CLI not found" mode
+    /// nil when the clausona binary is missing — handoff entry points hide.
+    public var launchFlow: (@MainActor (ClausonaFlow) -> String?)?
     public var launchAtLoginStatus: @Sendable () -> Bool
     public var setLaunchAtLogin: @Sendable (Bool) throws -> Void
     public var now: @Sendable () -> Date
@@ -28,6 +30,7 @@ public struct AppDependencies: Sendable {
                 token: @escaping @Sendable (Profile) async -> TokenResult,
                 fetchUsage: @escaping @Sendable (String) async -> Result<UsageReport, UsageError>,
                 cli: CLIActions?,
+                launchFlow: (@MainActor (ClausonaFlow) -> String?)? = nil,
                 launchAtLoginStatus: @escaping @Sendable () -> Bool = { SMAppService.mainApp.status == .enabled },
                 setLaunchAtLogin: @escaping @Sendable (Bool) throws -> Void = { enabled in
                     if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
@@ -37,25 +40,35 @@ public struct AppDependencies: Sendable {
         self.token = token
         self.fetchUsage = fetchUsage
         self.cli = cli
+        self.launchFlow = launchFlow
         self.launchAtLoginStatus = launchAtLoginStatus
         self.setLaunchAtLogin = setLaunchAtLogin
         self.now = now
     }
 
-    public static func live() -> AppDependencies {
+    public static func live(settings: AppSettings? = nil) -> AppDependencies {
         let store = ProfileStore()
         let provider = TokenProvider.live()
         let fetcher = UsageFetcher.live
-        let cli = ClausonaCLI.locate().map { path in
+        let binaryPath = ClausonaCLI.locate()
+        let cli = binaryPath.map { path in
             let cli = ClausonaCLI(binaryPath: path)
             return CLIActions(use: { await cli.use(profile: $0) },
                               repair: { await cli.repair(profile: $0) },
                               doctor: { await cli.doctor() })
         }
+        let launchFlow: (@MainActor (ClausonaFlow) -> String?)? = binaryPath.map { path in
+            { flow in
+                TerminalLauncher.launch(flow.command(binaryPath: path),
+                                        using: settings?.terminal ?? .terminal,
+                                        otherAppPath: settings?.otherTerminalPath)
+            }
+        }
         return AppDependencies(
             loadProfiles: { store.load() },
             token: { await provider.token(forConfigDir: $0.configDir) },
             fetchUsage: { await fetcher.fetch(token: $0) },
-            cli: cli)
+            cli: cli,
+            launchFlow: launchFlow)
     }
 }

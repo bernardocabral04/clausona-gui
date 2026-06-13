@@ -155,6 +155,28 @@ final class AppModelTests: XCTestCase {
         XCTAssertEqual(model.totalIssueCount, 3)
     }
 
+    func testStartFlowLaunchesAndSurfacesNotice() async {
+        nonisolated(unsafe) var launched: [ClausonaFlow] = []
+        var d = deps(profiles: file())
+        d.launchFlow = { flow in
+            launched.append(flow)
+            return flow == .initialSetup ? "fallback notice" : nil
+        }
+        let model = AppModel(deps: d)
+        model.startFlow(.add(name: "neu"))
+        XCTAssertEqual(launched, [.add(name: "neu")])
+        XCTAssertNil(model.toast)
+        model.startFlow(.initialSetup)
+        XCTAssertEqual(model.toast, "fallback notice")
+    }
+
+    func testStartFlowNoopWithoutLauncher() {
+        let model = AppModel(deps: deps())   // launchFlow nil (CLI missing)
+        model.startFlow(.login(name: "x"))
+        XCTAssertNil(model.toast)
+        XCTAssertFalse(model.canStartFlows)
+    }
+
     func testCliAvailabilityFlag() {
         XCTAssertFalse(AppModel(deps: deps()).cliAvailable)
         let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { .failure(CLIError(message: "no doctor")) })
