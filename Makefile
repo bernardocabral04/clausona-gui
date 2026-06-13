@@ -1,8 +1,9 @@
 APP_NAME = Clausona.app
 BUNDLE = dist/$(APP_NAME)
 BINARY = .build/release/ClausonaApp
+DMG = dist/Clausona.dmg
 
-.PHONY: build app install clean test
+.PHONY: build app install dmg clean test
 
 build:
 	swift build -c release
@@ -22,6 +23,16 @@ install: app
 	mkdir -p ~/Applications
 	cp -R $(BUNDLE) ~/Applications/
 	@echo "Installed to ~/Applications/$(APP_NAME)"
+
+# Drag-to-Applications disk image for distribution.
+dmg: app
+	rm -f $(DMG)
+	rm -rf dist/dmg && mkdir -p dist/dmg
+	cp -R $(BUNDLE) dist/dmg/
+	ln -s /Applications dist/dmg/Applications
+	hdiutil create -volname "Clausona" -srcfolder dist/dmg -ov -format UDZO $(DMG)
+	rm -rf dist/dmg
+	@echo "Built $(DMG)"
 
 clean:
 	rm -rf .build dist
