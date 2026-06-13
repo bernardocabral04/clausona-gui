@@ -47,19 +47,12 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         self.hotkey = hotkey
 
-        let scheduler = RefreshScheduler(
-            onUsageTick: { [weak self] in
-                self?.stateWatcher?.startIfNeeded()
-                Task { await model.refreshUsage() }
-            },
-            onHealthTick: { Task { await model.refreshHealth() } })
-        scheduler.updateUsageInterval(TimeInterval(settings.refreshMinutes * 60))
+        let scheduler = RefreshScheduler(onHealthTick: { [weak self] in
+            self?.stateWatcher?.startIfNeeded()
+            Task { await model.refreshHealth() }
+        })
         scheduler.start()
         self.scheduler = scheduler
-        settings.onRefreshIntervalChange = { [weak self, weak settings] in
-            guard let settings else { return }
-            self?.scheduler?.updateUsageInterval(TimeInterval(settings.refreshMinutes * 60))
-        }
 
         // StateWatcher: any change in ~/.clausona (add/remove/init/config — from the
         // GUI or a plain terminal) refreshes the model after a debounce.

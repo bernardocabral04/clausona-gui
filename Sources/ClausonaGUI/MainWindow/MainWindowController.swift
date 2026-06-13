@@ -23,7 +23,10 @@ public final class MainWindowController: NSObject, NSWindowDelegate {
         NSApp.setActivationPolicy(.regular)
         window?.makeKeyAndOrderFront(nil)
         NSApp.activate()
-        Task { await model.refreshHealth() }
+        Task {
+            await model.refreshUsageIfStale()
+            await model.refreshHealth()
+        }
     }
 
     private func makeWindow() -> NSWindow {

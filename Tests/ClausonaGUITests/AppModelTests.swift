@@ -177,6 +177,34 @@ final class AppModelTests: XCTestCase {
         XCTAssertFalse(model.canStartFlows)
     }
 
+    func testRefreshIfStaleSkipsFreshCache() async {
+        nonisolated(unsafe) var fetches = 0
+        let model = AppModel(deps: deps(profiles: file(names: ["personal"]), fetch: { _ in
+            fetches += 1
+            return .success(Self.report(1))
+        }))
+        await model.refreshUsage()
+        XCTAssertEqual(fetches, 1)
+        await model.refreshUsageIfStale(maxAge: 60)   // lastUpdated == now → fresh, skip
+        XCTAssertEqual(fetches, 1)
+    }
+
+    func testRefreshIfStaleFetchesWhenOldOrNeverLoaded() async {
+        nonisolated(unsafe) var fetches = 0
+        nonisolated(unsafe) var clock = Self.now
+        var d = deps(profiles: file(names: ["personal"]), fetch: { _ in
+            fetches += 1
+            return .success(Self.report(1))
+        })
+        d.now = { clock }
+        let model = AppModel(deps: d)
+        await model.refreshUsageIfStale(maxAge: 60)   // never loaded → fetch
+        XCTAssertEqual(fetches, 1)
+        clock = Self.now.addingTimeInterval(120)      // cache now 2 min old
+        await model.refreshUsageIfStale(maxAge: 60)
+        XCTAssertEqual(fetches, 2)
+    }
+
     func testCliAvailabilityFlag() {
         XCTAssertFalse(AppModel(deps: deps()).cliAvailable)
         let cli = CLIActions(use: { _ in .success(()) }, repair: { _ in .success(()) }, doctor: { .failure(CLIError(message: "no doctor")) })

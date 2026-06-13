@@ -34,14 +34,6 @@ struct SettingsView: View {
                 }
             }
 
-            Section("Refresh") {
-                Picker("Background refresh", selection: $settings.refreshMinutes) {
-                    ForEach(AppSettings.allowedRefreshMinutes, id: \.self) { minutes in
-                        Text("Every \(minutes) minutes").tag(minutes)
-                    }
-                }
-            }
-
             Section("General") {
                 Toggle("Launch at Login", isOn: Binding(
                     get: { model.launchAtLoginEnabled },

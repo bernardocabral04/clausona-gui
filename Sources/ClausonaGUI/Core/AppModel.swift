@@ -64,7 +64,15 @@ public final class AppModel {
 
     public func popoverDidOpen() {
         refreshLaunchAtLogin()
-        Task { await refreshUsage() }
+        Task { await refreshUsageIfStale() }
+    }
+
+    /// On-demand refresh: usage is only fetched when someone is looking and the
+    /// cache is older than `maxAge` (no background polling — it fed rate limits
+    /// for data nothing consumed). The Refresh button still forces via refreshUsage().
+    public func refreshUsageIfStale(maxAge: TimeInterval = 60) async {
+        if let lastUpdated, deps.now().timeIntervalSince(lastUpdated) < maxAge { return }
+        await refreshUsage()
     }
 
     // MARK: - Usage
