@@ -50,4 +50,62 @@ final class TokenProviderTests: XCTestCase {
         let result = await provider(secrets: [:]).token(forConfigDir: "/d")
         XCTAssertEqual(result, .missing)
     }
+
+    // MARK: - Silent refresh
+
+    private func refreshableBlob(token: String, refreshToken: String, expiresMS: Double) -> Data {
+        Data(#"{ "claudeAiOauth": { "accessToken": "\#(token)", "refreshToken": "\#(refreshToken)", "expiresAt": \#(expiresMS), "subscriptionType": "max" } }"#.utf8)
+    }
+
+    func testExpiredTokenIsSilentlyRefreshedAndPersisted() async {
+        let svc = Credentials.serviceName(forConfigDir: "/d")
+        nonisolated(unsafe) var written: (service: String, blob: Data)?
+        var p = provider(secrets: [svc: refreshableBlob(token: "stale", refreshToken: "rt-1", expiresMS: 999_000_000)])
+        p.refresh = { refreshToken in
+            XCTAssertEqual(refreshToken, "rt-1")
+            return .success(.init(accessToken: "fresh", refreshToken: "rt-2",
+                                  expiresAt: Date(timeIntervalSince1970: 2_000_000)))
+        }
+        p.writeSecret = { service, blob in
+            written = (service, blob)
+            return true
+        }
+        let result = await p.token(forConfigDir: "/d")
+        guard case .ok(let token) = result else { return XCTFail("\(result)") }
+        XCTAssertEqual(token.accessToken, "fresh")
+        XCTAssertEqual(written?.service, svc)
+        let persisted = Credentials.parse(written?.blob ?? Data())
+        XCTAssertEqual(persisted?.accessToken, "fresh")
+        XCTAssertEqual(persisted?.refreshToken, "rt-2")
+    }
+
+    func testRefreshFailureFallsBackToExpired() async {
+        let svc = Credentials.serviceName(forConfigDir: "/d")
+        var p = provider(secrets: [svc: refreshableBlob(token: "stale", refreshToken: "rt", expiresMS: 999_000_000)])
+        p.refresh = { _ in .failure(.init(message: "HTTP 400")) }
+        p.writeSecret = { _, _ in XCTFail("must not write on failed refresh"); return false }
+        let result = await p.token(forConfigDir: "/d")
+        XCTAssertEqual(result, .expired)
+    }
+
+    func testExpiredWithoutRefreshTokenStaysExpired() async {
+        let svc = Credentials.serviceName(forConfigDir: "/d")
+        var p = provider(secrets: [svc: blob(token: "stale", expiresMS: 999_000_000)])   // no refreshToken
+        p.refresh = { _ in XCTFail("must not attempt refresh without a refresh token"); return .failure(.init(message: "x")) }
+        let result = await p.token(forConfigDir: "/d")
+        XCTAssertEqual(result, .expired)
+    }
+
+    func testRefreshSucceedsEvenIfPersistFails() async {
+        // The fresh token is still served this cycle; persistence failure only
+        // means the next launch re-refreshes.
+        let svc = Credentials.serviceName(forConfigDir: "/d")
+        var p = provider(secrets: [svc: refreshableBlob(token: "stale", refreshToken: "rt", expiresMS: 999_000_000)])
+        p.refresh = { _ in .success(.init(accessToken: "fresh", refreshToken: nil,
+                                          expiresAt: Date(timeIntervalSince1970: 2_000_000))) }
+        p.writeSecret = { _, _ in false }
+        let result = await p.token(forConfigDir: "/d")
+        guard case .ok(let token) = result else { return XCTFail("\(result)") }
+        XCTAssertEqual(token.accessToken, "fresh")
+    }
 }
