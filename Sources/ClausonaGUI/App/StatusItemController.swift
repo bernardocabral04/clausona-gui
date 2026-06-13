@@ -13,8 +13,8 @@ public final class StatusItemController: NSObject, NSPopoverDelegate {
         super.init()
 
         if let button = statusItem.button {
-            let image = NSImage(systemSymbolName: "gauge.with.needle", accessibilityDescription: "Clausona")
-                ?? NSImage(systemSymbolName: "speedometer", accessibilityDescription: "Clausona")
+            let image = MenuBarIcon.image()
+                ?? NSImage(systemSymbolName: "gauge.with.needle", accessibilityDescription: "Clausona")
             image?.isTemplate = true
             button.image = image
             button.target = self

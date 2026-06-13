@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Clausona — icon concepts</title>
+<style>
+  :root {
+    --claude: #D97757;        /* Anthropic clay/terracotta */
+    --ink: #1a1a1a;
+    --paper: #f5f3ee;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif;
+    color: var(--ink);
+    background: var(--paper);
+    -webkit-font-smoothing: antialiased;
+  }
+  header {
+    padding: 40px 48px 8px;
+  }
+  header h1 { margin: 0; font-size: 26px; letter-spacing: -0.02em; }
+  header p { margin: 6px 0 0; color: #6b6661; max-width: 60ch; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 24px;
+    padding: 32px 48px 64px;
+  }
+  .card {
+    background: #fff;
+    border: 1px solid #e4e0d8;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px rgba(0,0,0,.04), 0 8px 24px rgba(0,0,0,.04);
+  }
+  .card h2 { margin: 0; padding: 16px 18px 4px; font-size: 15px; }
+  .card .desc { padding: 0 18px 14px; color: #8a8580; font-size: 12.5px; min-height: 34px; }
+  .stage {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    gap: 10px;
+    padding: 26px 18px;
+    border-top: 1px solid #efece6;
+  }
+  .swatch { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+  .swatch small { font-size: 10px; color: #a39e98; letter-spacing: .04em; text-transform: uppercase; }
+  .menubar {
+    background: #2b2b2d;
+    border-radius: 8px;
+    padding: 7px 9px;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .menubar svg { display: block; }
+  .lg { background: linear-gradient(160deg, #fbf9f5, #efe9df); border-radius: 14px; padding: 14px; }
+  .dark { background: #1e1e20; border-radius: 14px; padding: 14px; }
+  footer { padding: 0 48px 60px; color: #8a8580; font-size: 12.5px; }
+  code { background: #ece8e0; padding: 1px 6px; border-radius: 5px; font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Clausona — menu bar icon concepts</h1>
+  <p>The Claude spark mark fused with a profile/identity motif. Each concept is shown as it
+     renders in the menu bar (18&nbsp;pt, monochrome template), at large color, and on dark.
+     The spark is the genuine Claude burst geometry — twelve tapered rays around a center.</p>
+</header>
+
+<div class="grid">
+
+  <!-- ============ Concept A: Spark in a ring (profile chip) ============ -->
+  <div class="card">
+    <h2>A · Spark badge</h2>
+    <div class="desc">Claude spark inside a circular profile chip — reads instantly as "an account."</div>
+    <div class="stage">
+      <div class="swatch">
+        <div class="menubar">
+          <svg width="20" height="20" viewBox="0 0 24 24" aria-label="Clausona A">
+            <g fill="none" stroke="#fff" stroke-width="1.6">
+              <circle cx="12" cy="12" r="9.2"/>
+            </g>
+            <g fill="#fff" transform="translate(12,12)" id="sparkA">
+              <!-- 12 tapered rays -->
+              <g id="rayPackA">
+                <path d="M0,-5.4 L0.95,-1.7 L0,-0 L-0.95,-1.7 Z"/>
+              </g>
+            </g>
+          </svg>
+        </div>
+        <small>menu bar</small>
+      </div>
+      <div class="swatch">
+        <div class="lg">
+          <svg width="64" height="64" viewBox="0 0 24 24" aria-label="Clausona A large">
+            <circle cx="12" cy="12" r="9.4" fill="none" stroke="var(--claude)" stroke-width="1.5"/>
+            <g fill="var(--claude)" id="sparkA-lg" transform="translate(12,12)"></g>
+          </svg>
+        </div>
+        <small>color</small>
+      </div>
+      <div class="swatch">
+        <div class="dark">
+          <svg width="64" height="64" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="9.4" fill="none" stroke="#fff" stroke-width="1.5"/>
+            <g fill="#fff" id="sparkA-dk" transform="translate(12,12)"></g>
+          </svg>
+        </div>
+        <small>dark</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Concept B: Spark as the head of a person ============ -->
+  <div class="card">
+    <h2>B · Spark-head profile</h2>
+    <div class="desc">A classic person silhouette whose head is the Claude spark — identity + Claude in one glyph.</div>
+    <div class="stage">
+      <div class="swatch">
+        <div class="menubar"><div id="B-mb"></div></div>
+        <small>menu bar</small>
+      </div>
+      <div class="swatch">
+        <div class="lg"><div id="B-lg"></div></div>
+        <small>color</small>
+      </div>
+      <div class="swatch">
+        <div class="dark"><div id="B-dk"></div></div>
+        <small>dark</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Concept C: Spark + switch (multi-profile) ============ -->
+  <div class="card">
+    <h2>C · Spark + switch</h2>
+    <div class="desc">Spark with two offset profile dots and a switch arc — speaks to the multi-profile switcher.</div>
+    <div class="stage">
+      <div class="swatch">
+        <div class="menubar"><div id="C-mb"></div></div>
+        <small>menu bar</small>
+      </div>
+      <div class="swatch">
+        <div class="lg"><div id="C-lg"></div></div>
+        <small>color</small>
+      </div>
+      <div class="swatch">
+        <div class="dark"><div id="C-dk"></div></div>
+        <small>dark</small>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ Concept D: Spark gauge (limits) ============ -->
+  <div class="card">
+    <h2>D · Spark gauge</h2>
+    <div class="desc">Spark centered in an open gauge ring — nods to the rate-limit dials that are the app's core.</div>
+    <div class="stage">
+      <div class="swatch">
+        <div class="menubar"><div id="D-mb"></div></div>
+        <small>menu bar</small>
+      </div>
+      <div class="swatch">
+        <div class="lg"><div id="D-lg"></div></div>
+        <small>color</small>
+      </div>
+      <div class="swatch">
+        <div class="dark"><div id="D-dk"></div></div>
+        <small>dark</small>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  Tell me which concept (or hybrid) you like and I'll export it as the real
+  <code>Resources/MenuBarIcon.svg</code> + a template <code>NSImage</code> and wire it into <code>StatusItemController</code>.
+</footer>
+
+<script>
+/* ---- Build the authentic Claude spark: 12 tapered rays around a center ----
+   Each ray is a slim quadrilateral, longer rays on the cardinal/inter axes,
+   matching the Claude burst that tapers toward the hub.                    */
+function sparkRays({rays = 12, outer = 9, inner = 1.6, halfBase = 0.9, taperTip = 0.0} = {}) {
+  let d = "";
+  for (let i = 0; i < rays; i++) {
+    const a = (i / rays) * Math.PI * 2;
+    const ca = Math.cos(a), sa = Math.sin(a);
+    // perpendicular for width
+    const px = -sa, py = ca;
+    const tipX = ca * outer,         tipY = sa * outer;
+    const baseX = ca * inner,        baseY = sa * inner;
+    const b1x = baseX + px * halfBase, b1y = baseY + py * halfBase;
+    const b2x = baseX - px * halfBase, b2y = baseY - py * halfBase;
+    const t1x = tipX + px * taperTip,  t1y = tipY + py * taperTip;
+    const t2x = tipX - px * taperTip,  t2y = tipY - py * taperTip;
+    d += `M${b1x.toFixed(2)},${b1y.toFixed(2)} L${t1x.toFixed(2)},${t1y.toFixed(2)} L${t2x.toFixed(2)},${t2y.toFixed(2)} L${b2x.toFixed(2)},${b2y.toFixed(2)} Z `;
+  }
+  return d;
+}
+
+function spark(fill, opts) {
+  return `<path fill="${fill}" d="${sparkRays(opts)}"/>`;
+}
+
+/* Concept A — fill the spark groups (rays sized to sit inside the chip) */
+const aOpts = {rays: 12, outer: 5.4, inner: 1.1, halfBase: 0.62};
+document.getElementById('sparkA').innerHTML = spark('#fff', aOpts);
+document.getElementById('sparkA-lg').innerHTML = spark('var(--claude)', aOpts);
+document.getElementById('sparkA-dk').innerHTML = spark('#fff', aOpts);
+
+/* Concept B — person silhouette with spark head */
+function conceptB(stroke, fill, size) {
+  const head = `<g transform="translate(12,7.6)">${spark(fill, {rays: 12, outer: 6.2, inner: 1.2, halfBase: 0.72})}</g>`;
+  // shoulders: a rounded arc, dropped slightly to give the larger head room
+  const body = `<path d="M4.5,22 C4.5,17.7 8,15.7 12,15.7 C16,15.7 19.5,17.7 19.5,22"
+                 fill="none" stroke="${stroke}" stroke-width="1.7" stroke-linecap="round"/>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">${body}${head}</svg>`;
+}
+document.getElementById('B-mb').innerHTML = conceptB('#fff', '#fff', 20);
+document.getElementById('B-lg').innerHTML = conceptB('var(--claude)', 'var(--claude)', 64);
+document.getElementById('B-dk').innerHTML = conceptB('#fff', '#fff', 64);
+
+/* Concept C — spark + two profile dots + switch arc */
+function conceptC(stroke, fill, size) {
+  const sparkG = `<g transform="translate(12,11)">${spark(fill, {rays: 12, outer: 5.0, inner: 1.0, halfBase: 0.58})}</g>`;
+  const arc = `<path d="M5.5,18.5 A7,7 0 0 0 18.5,18.5" fill="none" stroke="${stroke}" stroke-width="1.5"
+                stroke-linecap="round" opacity="0.9"/>`;
+  const dots = `<circle cx="5.5" cy="18.5" r="1.7" fill="${fill}"/>
+                <circle cx="18.5" cy="18.5" r="1.7" fill="${fill}"/>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">${arc}${dots}${sparkG}</svg>`;
+}
+document.getElementById('C-mb').innerHTML = conceptC('#fff', '#fff', 20);
+document.getElementById('C-lg').innerHTML = conceptC('var(--claude)', 'var(--claude)', 64);
+document.getElementById('C-dk').innerHTML = conceptC('#fff', '#fff', 64);
+
+/* Concept D — spark gauge (open ring with tick + spark center) */
+function conceptD(stroke, fill, size) {
+  // open ring (gauge): arc from 135° to 45° going the long way (270° sweep)
+  const r = 9;
+  const start = 135 * Math.PI/180, end = 405 * Math.PI/180;
+  const x1 = 12 + r*Math.cos(start), y1 = 12 + r*Math.sin(start);
+  const x2 = 12 + r*Math.cos(end),   y2 = 12 + r*Math.sin(end);
+  const ring = `<path d="M${x1.toFixed(2)},${y1.toFixed(2)} A${r},${r} 0 1 1 ${x2.toFixed(2)},${y2.toFixed(2)}"
+                 fill="none" stroke="${stroke}" stroke-width="1.6" stroke-linecap="round"/>`;
+  const sparkG = `<g transform="translate(12,12)">${spark(fill, {rays: 12, outer: 4.6, inner: 0.9, halfBase: 0.54})}</g>`;
+  return `<svg width="${size}" height="${size}" viewBox="0 0 24 24">${ring}${sparkG}</svg>`;
+}
+document.getElementById('D-mb').innerHTML = conceptD('#fff', '#fff', 20);
+document.getElementById('D-lg').innerHTML = conceptD('var(--claude)', 'var(--claude)', 64);
+document.getElementById('D-dk').innerHTML = conceptD('#fff', '#fff', 64);
+</script>
+</body>
+</html>
