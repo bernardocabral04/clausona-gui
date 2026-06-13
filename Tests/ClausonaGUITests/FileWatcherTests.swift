@@ -26,6 +26,20 @@ final class FileWatcherTests: XCTestCase {
         await fulfillment(of: [changed], timeout: 5)
     }
 
+    func testDirectoryWatchDetectsFileCreation() async throws {
+        let dir = NSTemporaryDirectory() + "watchdir-\(UUID().uuidString)"
+        try FileManager.default.createDirectory(atPath: dir, withIntermediateDirectories: true)
+        let changed = expectation(description: "dir change detected")
+        changed.assertForOverFulfill = false
+        let watcher = FileWatcher(path: dir) { changed.fulfill() }
+        watcher.start()
+        defer { watcher.stop() }
+
+        try await Task.sleep(for: .milliseconds(100))
+        try "{}".write(toFile: dir + "/profiles.json", atomically: true, encoding: .utf8)
+        await fulfillment(of: [changed], timeout: 5)
+    }
+
     func testSurvivesAtomicReplace() async throws {
         let path = try tempFile("one")
         let changes = expectation(description: "two changes detected")
