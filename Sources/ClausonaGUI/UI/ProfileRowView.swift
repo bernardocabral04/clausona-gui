@@ -25,8 +25,11 @@ struct ProfileRowView: View {
 
             actionButton
         }
+        // Constant height (fits the hover-revealed buttons) so rows don't
+        // grow on hover and the popover doesn't twitch.
+        .frame(height: 20)
         .padding(.horizontal, 8)
-        .padding(.vertical, 5)
+        .padding(.vertical, 4)
         .background(RoundedRectangle(cornerRadius: 6)
             .fill(hovering ? Color.primary.opacity(0.07) : .clear))
         .onHover { hovering = $0 }
