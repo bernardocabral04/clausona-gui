@@ -57,8 +57,9 @@ public struct AppDependencies: Sendable {
                               repair: { await cli.repair(profile: $0) },
                               doctor: { await cli.doctor() })
         }
-        let launchFlow: (@MainActor (ClausonaFlow) -> String?)? = binaryPath.map { path in
-            { flow in
+        var launchFlow: (@MainActor (ClausonaFlow) -> String?)?
+        if let path = binaryPath {
+            launchFlow = { flow in
                 TerminalLauncher.launch(flow.command(binaryPath: path),
                                         using: settings?.terminal ?? .terminal,
                                         otherAppPath: settings?.otherTerminalPath)
