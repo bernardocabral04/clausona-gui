@@ -13,8 +13,9 @@ test:
 
 app: build
 	rm -rf $(BUNDLE)
-	mkdir -p $(BUNDLE)/Contents/MacOS
+	mkdir -p $(BUNDLE)/Contents/MacOS $(BUNDLE)/Contents/Resources
 	cp Resources/Info.plist $(BUNDLE)/Contents/Info.plist
+	cp Resources/AppIcon.icns $(BUNDLE)/Contents/Resources/AppIcon.icns
 	cp $(BINARY) $(BUNDLE)/Contents/MacOS/ClausonaApp
 	codesign --force --sign - $(BUNDLE)
 
