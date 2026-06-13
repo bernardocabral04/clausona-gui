@@ -41,6 +41,12 @@ public final class AppModel {
         onOpenMainWindow?()
     }
 
+    @ObservationIgnored public var onOpenSettings: (@MainActor () -> Void)?
+
+    public func openSettings() {
+        onOpenSettings?()
+    }
+
     // MARK: - Terminal handoffs
 
     public var canStartFlows: Bool { deps.launchFlow != nil }

@@ -9,6 +9,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var windowController: MainWindowController?
     private var usageStore: UsageStore?
     private var settings: AppSettings?
+    private var settingsController: SettingsWindowController?
     private var stateWatcher: FileWatcher?
     private var stateDebouncer: Debouncer?
 
@@ -28,6 +29,13 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         model.onOpenMainWindow = { [weak controller, weak windowController] in
             controller?.close()
             windowController?.show()
+        }
+
+        let settingsController = SettingsWindowController(settings: settings, model: model)
+        self.settingsController = settingsController
+        model.onOpenSettings = { [weak controller, weak settingsController] in
+            controller?.close()
+            settingsController?.show()
         }
 
         let hotkey = HotkeyManager { [weak controller] in
