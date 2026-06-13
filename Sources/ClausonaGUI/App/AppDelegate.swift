@@ -11,6 +11,7 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
     private var settings: AppSettings?
     private var settingsController: SettingsWindowController?
     private var stateWatcher: FileWatcher?
+    private var profilesWatcher: FileWatcher?
     private var stateDebouncer: Debouncer?
 
     public func applicationDidFinishLaunching(_ notification: Notification) {
@@ -70,8 +71,18 @@ public final class AppDelegate: NSObject, NSApplicationDelegate {
         }
         stateDebouncer = debouncer
         let clausonaHome = ProcessInfo.processInfo.environment["CLAUSONA_HOME"] ?? NSHomeDirectory() + "/.clausona"
-        let watcher = FileWatcher(path: clausonaHome) { [weak debouncer] in
+        // profiles.json is rewritten IN PLACE by clausona (verified: same inode
+        // across `clausona use`), which a directory watch cannot see — so watch
+        // the file directly. The directory watch covers creation/deletion (init,
+        // remove, first-run) and re-arms the file watch when the file appears.
+        let profilesWatcher = FileWatcher(path: clausonaHome + "/profiles.json") { [weak debouncer] in
             debouncer?.call()
+        }
+        self.profilesWatcher = profilesWatcher
+        profilesWatcher.start()
+        let watcher = FileWatcher(path: clausonaHome) { [weak debouncer, weak profilesWatcher] in
+            debouncer?.call()
+            profilesWatcher?.startIfNeeded()
         }
         stateWatcher = watcher
         watcher.start()
