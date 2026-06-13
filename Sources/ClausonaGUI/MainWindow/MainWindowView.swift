@@ -10,6 +10,7 @@ public struct MainWindowView: View {
     let model: AppModel
     let usage: UsageStore
     @State private var selection: MainSection? = .dashboard
+    @State private var showingAddSheet = false
 
     public init(model: AppModel, usage: UsageStore) {
         self.model = model
@@ -45,6 +46,24 @@ public struct MainWindowView: View {
                     .tag(MainSection.doctor)
             }
             .navigationSplitViewColumnWidth(min: 170, ideal: 190)
+            .safeAreaInset(edge: .bottom) {
+                if model.canStartFlows {
+                    HStack {
+                        Button {
+                            showingAddSheet = true
+                        } label: {
+                            Label("Add Profile", systemImage: "plus")
+                                .font(.system(size: 12))
+                        }
+                        .buttonStyle(.borderless)
+                        Spacer()
+                    }
+                    .padding(8)
+                    .sheet(isPresented: $showingAddSheet) {
+                        AddProfileSheet(model: model, isPresented: $showingAddSheet)
+                    }
+                }
+            }
         } detail: {
             switch selection {
             case .dashboard, nil:
@@ -60,6 +79,15 @@ public struct MainWindowView: View {
             }
         }
         .frame(minWidth: 720, minHeight: 420)
+        .toolbar {
+            Button {
+                model.openSettings()
+            } label: {
+                Label("Settings", systemImage: "gearshape")
+            }
+            .keyboardShortcut(",")
+            .help("Settings")
+        }
     }
 
     private func dotColor(_ health: HealthStatus) -> Color {

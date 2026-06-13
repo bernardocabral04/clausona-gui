@@ -56,6 +56,29 @@ struct ProfileDetailView: View {
                 LabeledContent("Input tokens", value: Formatting.tokens(totals.inputTokens))
                 LabeledContent("Output tokens", value: Formatting.tokens(totals.outputTokens))
             }
+
+            if model.canStartFlows {
+                Section("Actions") {
+                    LabeledContent("Re-authenticate") {
+                        Button("clausona login \(snapshot.name)") {
+                            model.startFlow(.login(name: snapshot.name))
+                        }
+                    }
+                    LabeledContent("Configure") {
+                        Button("clausona config \(snapshot.name)") {
+                            model.startFlow(.config(name: snapshot.name))
+                        }
+                    }
+                    LabeledContent("Remove") {
+                        Button(role: .destructive) {
+                            model.startFlow(.remove(name: snapshot.name))
+                        } label: {
+                            Text("clausona remove \(snapshot.name)…")
+                        }
+                        .help("Opens clausona's removal flow in your terminal — confirmation happens there")
+                    }
+                }
+            }
         }
         .formStyle(.grouped)
         .navigationTitle(snapshot.name)
