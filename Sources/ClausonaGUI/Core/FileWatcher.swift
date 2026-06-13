@@ -41,4 +41,11 @@ public final class FileWatcher {
         source?.cancel()
         source = nil
     }
+
+    public var isActive: Bool { source != nil }
+
+    /// Re-arm only if not currently watching (e.g. the directory appeared after launch).
+    public func startIfNeeded() {
+        if source == nil { start() }
+    }
 }

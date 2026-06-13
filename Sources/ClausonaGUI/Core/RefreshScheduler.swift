@@ -2,7 +2,7 @@ import Foundation
 
 @MainActor
 public final class RefreshScheduler {
-    private let usageInterval: TimeInterval
+    private var usageInterval: TimeInterval
     private let healthInterval: TimeInterval
     private let onUsageTick: @MainActor () -> Void
     private let onHealthTick: @MainActor () -> Void
@@ -32,5 +32,11 @@ public final class RefreshScheduler {
     public func stop() {
         timers.forEach { $0.invalidate() }
         timers = []
+    }
+
+    public func updateUsageInterval(_ interval: TimeInterval) {
+        guard interval != usageInterval else { return }
+        usageInterval = interval
+        if !timers.isEmpty { start() }   // restart with the new cadence
     }
 }
